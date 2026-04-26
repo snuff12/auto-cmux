@@ -6,7 +6,7 @@ import type { AgentCli, AgentConfig } from './types.js';
 const DEFAULT_CONFIGS: Record<AgentCli, AgentConfig> = {
   claude: {
     command: 'claude',
-    printFlag: '--print',
+    printFlag: '',
     resumeFlag: '--resume',
     sessionFlag: '--session-id',
     skipPermissions: '--dangerously-skip-permissions',

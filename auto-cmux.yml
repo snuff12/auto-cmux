@@ -1,44 +1,23 @@
 version: "0.1"
 project:
   name: auto-cmux
-  clis: [claude]
+  clis: [claude, codex]
 
 agents:
   assignment:
     mode: manual
     stallTimeoutSec: 120
   roles:
-    - id: developer
-      cli: claude
-      model: sonnet
-      description: "General code implementation and bug fixes"
-      instructions: .auto-cmux/roles/developer.md
-      skills: [commit, code-review]
-      workspace: dev
-    - id: reviewer
-      cli: claude
-      model: haiku
-      description: "Code review, quality checks, and PR feedback"
-      instructions: .auto-cmux/roles/reviewer.md
-      skills: [code-review, security-review, simplify]
-      workspace: review
-    - id: planner
-      cli: claude
-      model: opus
-      description: "Task decomposition, architecture design, and planning"
-      instructions: .auto-cmux/roles/planner.md
-      workspace: plan
     - id: researcher
       cli: claude
       model: sonnet
-      description: "External research, documentation analysis, and competitive study"
+      description: "Technical research, analysis, and documentation"
       instructions: .auto-cmux/roles/researcher.md
-      workspace: research
 
 reactions: []
 
 git:
-  worktreeEnabled: false
+  worktreeEnabled: true
   branchPrefix: "agent/"
 
 costs:

@@ -32,8 +32,10 @@ switch (command) {
     await runCleanupCommand(process.argv.slice(3));
     break;
   }
-  default:
+  default: {
     // No subcommand = run MCP server
-    await import('./mcp-server.js');
+    const { runStandaloneMcpServer } = await import('./mcp-server.js');
+    await runStandaloneMcpServer();
     break;
+  }
 }

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.auto-cmux/
+.claude/
+.DS_Store
+.mcp.json

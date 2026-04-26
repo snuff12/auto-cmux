@@ -1,0 +1,46 @@
+# Parallel Research — multiple agents conduct research concurrently and synthesize results
+#
+# Usage example:
+#   1. Create 2-3 researcher role agents with spawn_agent
+#   2. Each agent investigates independently
+#   3. Wait for completion with wait_for_children, then consolidate results
+
+version: "0.1"
+project:
+  name: my-research
+  root: .
+  clis: [claude]
+
+agents:
+  assignment:
+    mode: manual
+    stallTimeoutSec: 180    # generous timeout since research takes time
+  roles:
+    - id: researcher
+      cli: claude
+      model: sonnet
+      description: "Independent researcher — investigates a topic and reports findings"
+      skills: []
+    - id: synthesizer
+      cli: claude
+      model: opus
+      description: "Synthesizes multiple research reports into a coherent summary"
+      skills: []
+
+reactions:
+  - event: stall
+    action: diagnose
+    auto: true
+    retries: 2
+    cooldownMs: 30000
+  - event: rate-limited
+    action: resume
+    auto: true
+    cooldownMs: 60000
+
+git:
+  worktreeEnabled: false
+
+costs:
+  dailyLimitCents: 1500
+  warnAt: 0.8

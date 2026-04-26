@@ -1,0 +1,63 @@
+# Code Review Team — developer + reviewer perform automated code review cycles
+#
+# Usage example:
+#   1. Assign a feature implementation task to the developer agent
+#   2. After completion, reviewer automatically performs code review
+#   3. Apply review feedback -> re-review (up to 3 iterations)
+
+version: "0.1"
+project:
+  name: my-app
+  root: .
+  clis: [claude]
+
+agents:
+  assignment:
+    mode: manual
+    stallTimeoutSec: 120
+  roles:
+    - id: developer
+      cli: claude
+      model: sonnet
+      description: "Implements features and fixes bugs"
+      skills: [commit]
+      workspace: dev
+    - id: reviewer
+      cli: claude
+      model: sonnet
+      description: "Reviews code for bugs, security issues, and style"
+      skills: [code-review]
+      workspace: dev
+
+workflows:
+  feature:
+    steps:
+      - role: developer
+        review:
+          role: reviewer
+          max_iterations: 3
+          retry_on: changes_requested
+          pass_on: LGTM
+
+reactions:
+  - event: stall
+    action: diagnose
+    auto: true
+    retries: 2
+    cooldownMs: 20000
+  - event: agent-crashed
+    action: retry
+    auto: true
+    retries: 1
+    cooldownMs: 10000
+  - event: low-context
+    action: compact
+    auto: true
+
+git:
+  worktreeEnabled: true
+  branchPrefix: "agent/"
+
+costs:
+  dailyLimitCents: 2500
+  warnAt: 0.8

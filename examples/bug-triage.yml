@@ -1,0 +1,68 @@
+# Bug Triage — analyzer, fixer, and verifier roles for bug-fix workflows
+#
+# Usage example:
+#   1. Register a bug report with create_task
+#   2. Assign analysis/fix tasks manually or with task dependencies
+#   3. Use the verifier role as the review step for fixes
+
+version: "0.1"
+project:
+  name: my-app
+  root: .
+  clis: [claude]
+
+agents:
+  assignment:
+    mode: manual
+    stallTimeoutSec: 120
+  roles:
+    - id: analyzer
+      cli: claude
+      model: sonnet
+      description: "Analyzes bug reports — reproduces the issue, identifies root cause, and documents findings"
+      skills: []
+    - id: fixer
+      cli: claude
+      model: sonnet
+      description: "Implements bug fixes based on analysis reports"
+      skills: [commit]
+    - id: verifier
+      cli: claude
+      model: haiku
+      description: "Runs tests to verify bug fixes — checks regression and edge cases"
+      skills: []
+
+workflows:
+  bug-fix:
+    steps:
+      - role: analyzer
+      - role: fixer
+        review:
+          role: verifier
+          max_iterations: 2
+          retry_on: changes_requested
+          pass_on: LGTM
+
+reactions:
+  - event: stall
+    action: diagnose
+    auto: true
+    retries: 2
+    cooldownMs: 20000
+  - event: agent-crashed
+    action: retry
+    auto: true
+    retries: 2
+    cooldownMs: 10000
+    escalateAfter: 3
+  - event: hitl
+    action: alert
+    auto: false
+
+git:
+  worktreeEnabled: true
+  branchPrefix: "fix/"
+
+costs:
+  dailyLimitCents: 2000
+  warnAt: 0.7
